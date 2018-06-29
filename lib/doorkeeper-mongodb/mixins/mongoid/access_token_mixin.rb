@@ -105,24 +105,27 @@ module DoorkeeperMongodb
             end
           end
 
-          # Checks whether the token scopes match the scopes from the parameters or
-          # Application scopes (if present).
+          # Checks whether the token scopes match the scopes from the parameters
           #
           # @param token_scopes [#to_s]
           #   set of scopes (any object that responds to `#to_s`)
-          # @param param_scopes [String]
+          # @param param_scopes [Doorkeeper::OAuth::Scopes]
           #   scopes from params
-          # @param app_scopes [String]
+          # @param app_scopes [Doorkeeper::OAuth::Scopes]
           #   Application scopes
           #
-          # @return [Boolean] true if all scopes and blank or matches
+          # @return [Boolean] true if the param scopes match the token scopes,
+          #   and all the param scopes are defined in the application (or in the
+          #   server configuration if the application doesn't define any scopes),
           #   and false in other cases
           #
           def scopes_match?(token_scopes, param_scopes, app_scopes)
-            (!token_scopes.present? && !param_scopes.present?) ||
-              Doorkeeper::OAuth::Helpers::ScopeChecker.match?(
-                token_scopes.to_s,
-                param_scopes,
+            return true if token_scopes.empty? && param_scopes.empty?
+
+            (token_scopes.sort == param_scopes.sort) &&
+              Doorkeeper::OAuth::Helpers::ScopeChecker.valid?(
+                param_scopes.to_s,
+                Doorkeeper.configuration.scopes,
                 app_scopes
               )
           end
