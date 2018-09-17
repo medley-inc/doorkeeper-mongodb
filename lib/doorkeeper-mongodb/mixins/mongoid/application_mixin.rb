@@ -71,7 +71,9 @@ module DoorkeeperMongodb
         end
 
         def generate_secret
-          if secret.blank?
+          # 空の場合は省略してもよい (MAY) となっており、実装する側に依存するようなので独自にパッチを当てる
+          # See https://openid-foundation-japan.github.io/rfc6749.ja.html#client-password
+          if secret.nil?
             self.secret = UniqueToken.generate
           end
         end
