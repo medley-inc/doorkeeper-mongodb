@@ -21,7 +21,7 @@ module DoorkeeperMongodb
           has_many :access_grants, has_many_options.merge(class_name: 'Doorkeeper::AccessGrant')
           has_many :access_tokens, has_many_options.merge(class_name: 'Doorkeeper::AccessToken')
 
-          validates :name, :secret, :uid, presence: true
+          validates :name, :uid, presence: true
           validates :uid, uniqueness: true
           validates :redirect_uri, redirect_uri: true
 
