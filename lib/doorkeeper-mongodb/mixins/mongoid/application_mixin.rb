@@ -21,7 +21,7 @@ module DoorkeeperMongodb
           has_many :access_grants, has_many_options.merge(class_name: 'Doorkeeper::AccessGrant')
           has_many :access_tokens, has_many_options.merge(class_name: 'Doorkeeper::AccessToken')
 
-          validates :name, :secret, :uid, presence: true
+          validates :name, :uid, presence: true
           validates :uid, uniqueness: true
           validates :redirect_uri, redirect_uri: true
 
@@ -71,7 +71,11 @@ module DoorkeeperMongodb
         end
 
         def generate_secret
-          if secret.blank?
+          # 外部連携 B パターン (院内のサーバーなしのクライアントの場合) でクライアント認証なしの Authorization Code フローを利用することになったため
+          # 空文字のシークレットを設定できるようにしたかったが、RFC の仕様的に空の場合は省略してもよい (MAY) となっており、
+          # 実装する側に処理が依存するようなので独自にパッチを当てる
+          # See https://openid-foundation-japan.github.io/rfc6749.ja.html#client-password
+          if secret.nil?
             self.secret = UniqueToken.generate
           end
         end
